@@ -34,7 +34,7 @@ overlay = "bash scripts/apply-overlays.sh"
 # 3. Build every buildable package (packages.txt) into ./output as .conda.
 #    Pass a platform: `pixi run build-all linux-aarch64` (default linux-64).
 build-all = "bash scripts/build-all.sh"
-# 4. Upload ./output to the prefix.dev channel (override CHANNEL / PREFIX_API_KEY).
-publish = "rattler-build upload prefix -c ${CHANNEL:-bar-robotics} output/**/*.conda"
-# Convenience: full local dry run into a file:// channel (no account needed).
-publish-local = "rattler-build upload --help >/dev/null && echo 'use: pixi run build-all; see README for file:// channel demo'"
+# 4. Upload ./output to the prefix.dev channel (override CHANNEL; auth via OIDC
+#    in CI or PREFIX_API_KEY locally). In a script: deno_task_shell can't parse
+#    bash's ${CHANNEL:-default} expansion.
+publish = "bash scripts/publish.sh"
