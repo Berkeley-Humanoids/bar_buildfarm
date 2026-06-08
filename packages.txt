@@ -15,10 +15,12 @@ src/bar_ros2/bar_policy
 src/bar_ros2/bar_cli
 src/bar_ros2/bar_bringup_lite
 #
-# --- third-party (sim path) ---
-# mujoco_ament FetchContents the MuJoCo binary at configure time → the build
-# needs network (rattler-build allows it; non-hermetic). If this proves flaky,
-# repackage the MuJoCo binary as its own conda dep. The other two are plain ament.
-src/mujoco_ament
-src/mujoco_sim_ros2
-src/mujoco_ros2_control/mujoco_ros2_control
+# --- third-party (sim path) — STAGED, not yet build-verified ---
+# Uncomment to enable once verified. mujoco_ament FetchContents the MuJoCo binary
+# at configure time → the build needs network (rattler-build allows it;
+# non-hermetic). build-all.sh is strict (set -e), so leaving an unverified package
+# here would abort the whole run and block the bar_* publish. Verify first, then
+# uncomment (if flaky, repackage the MuJoCo binary as its own conda dep).
+# src/mujoco_ament
+# src/mujoco_sim_ros2
+# src/mujoco_ros2_control/mujoco_ros2_control
