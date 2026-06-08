@@ -1,0 +1,10 @@
+# OVERLAY (copied into src/ethercat_driver_ros2/ethercat_interface/ by apply-overlays.sh).
+# BLOCKED: the ethercat_* packages link IgH EtherLab libethercat, which has no
+# conda-forge package. Not in packages.txt until a libethercat conda pkg exists.
+[package.build.backend]
+name = "pixi-build-ros"
+version = "*"
+channels = ["https://prefix.dev/conda-forge"]
+
+[package.build.config]
+distro = "jazzy"

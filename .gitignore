@@ -1,0 +1,9 @@
+# Imported sources (recreated by `pixi run import`)
+/src/
+# Build artifacts + local channel
+/output/
+/local-channel/
+# pixi env
+/.pixi/
+# cron skip marker
+.ros_release_marker

@@ -1,0 +1,8 @@
+# OVERLAY (copied into src/ethercat_driver_ros2/ethercat_generic_plugins/ethercat_generic_cia402_drive/).
+[package.build.backend]
+name = "pixi-build-ros"
+version = "*"
+channels = ["https://prefix.dev/conda-forge"]
+
+[package.build.config]
+distro = "jazzy"

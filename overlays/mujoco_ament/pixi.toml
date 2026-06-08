@@ -1,0 +1,13 @@
+# OVERLAY (copied into src/mujoco_ament/ by apply-overlays.sh).
+# NOTE: mujoco_ament FetchContents the MuJoCo release tarball from GitHub at
+# CMake configure time → this build REQUIRES network access. rattler-build
+# permits network during build (unlike Debian sbuild), so CI works; the build is
+# non-hermetic. If it proves flaky, repackage the MuJoCo binary as its own conda
+# package and have this depend on it instead.
+[package.build.backend]
+name = "pixi-build-ros"
+version = "*"
+channels = ["https://prefix.dev/conda-forge"]
+
+[package.build.config]
+distro = "jazzy"

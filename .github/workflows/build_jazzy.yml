@@ -1,0 +1,100 @@
+# BAR conda buildfarm — Jazzy.
+#
+# Translates the qiayuanl/{unitree,legged}_buildfarm pattern to the conda world:
+#   thin orchestration repo · nightly cron with skip-if-RoboStack-unchanged ·
+#   arch matrix on NATIVE runners · tag-driven release.
+# Backend is pixi-build-ros → rattler-build → .conda (not bloom/sbuild/.deb),
+# published to the prefix.dev channel. See ../../BUILDFARM_PLAN.md.
+name: build-jazzy
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 10 * * *'        # nightly
+  push:
+    tags: ['v*']               # tagged release → publish clean version
+    paths:                     # rebuild when the build inputs change
+      - bar.repos
+      - packages.txt
+      - 'overlays/**'
+      - 'scripts/**'
+      - 'pixi.toml'
+      - '.github/workflows/build_jazzy.yml'
+
+jobs:
+  # Skip the nightly rebuild if RoboStack-jazzy hasn't changed since last run
+  # (qiayuanl hashes packages.ros.org's Release date; we hash the repodata).
+  check:
+    runs-on: ubuntu-latest
+    outputs:
+      skip: ${{ steps.cache.outputs.cache-hit }}
+    steps:
+      - id: hash
+        if: github.event_name == 'schedule'
+        run: |
+          H=$(curl -sIL https://prefix.dev/robostack-jazzy/linux-64/repodata.json \
+              | grep -i '^last-modified:' | sha256sum | cut -d' ' -f1)
+          echo "h=$H" >> "$GITHUB_OUTPUT"
+      - uses: actions/cache@v4
+        if: github.event_name == 'schedule'
+        id: cache
+        with:
+          path: .ros_release_marker
+          key: robostack-jazzy-${{ steps.hash.outputs.h }}
+      - if: github.event_name == 'schedule' && steps.cache.outputs.cache-hit != 'true'
+        run: echo "${{ steps.hash.outputs.h }}" > .ros_release_marker
+
+  build:
+    needs: check
+    if: needs.check.outputs.skip != 'true'
+    permissions:
+      id-token: write          # prefix.dev OIDC trusted publishing
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { arch: linux-64,      runner: ubuntu-24.04 }
+          - { arch: linux-aarch64, runner: ubuntu-24.04-arm }   # native ARM (Jetson)
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: prefix-dev/setup-pixi@v0
+        with:
+          manifest-path: pixi.toml
+
+      - name: Import sources
+        run: pixi run import
+
+      - name: Apply third-party build overlays
+        run: pixi run overlay
+
+      - name: Build all packages → ./output
+        run: pixi run build-all ${{ matrix.arch }}
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: conda-${{ matrix.arch }}
+          path: output/*.conda
+
+      # Publish on a version tag. Auth via OIDC (preferred) or PREFIX_API_KEY.
+      - name: Publish to prefix.dev
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          CHANNEL: bar-robotics
+          PREFIX_API_KEY: ${{ secrets.PREFIX_API_KEY }}
+        run: pixi run publish
+
+  # qiayuanl's downstream trigger analog: refresh the docs site after a release.
+  trigger-docs:
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    steps:
+      - env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+        run: |
+          if [ -n "$GH_TOKEN" ]; then
+            gh workflow run deploy.yml -R T-K-233/bar_ros2_docs || true
+          fi

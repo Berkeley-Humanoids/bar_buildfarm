@@ -1,0 +1,38 @@
+# bar_buildfarm — conda buildfarm for the BAR low-level control stack.
+#
+# Builds every bar_ros2 package (+ its non-RoboStack source deps) into
+# ros-jazzy-* conda packages via pixi-build-ros → rattler-build, for publication
+# to the prefix.dev channel. End users then `pixi add` the binaries instead of
+# `colcon build`. See ../BUILDFARM_PLAN.md for the full design.
+#
+# This repo is orchestration only: sources are vcs-imported into src/ (gitignored),
+# the third-party trees get a conda build manifest dropped in via overlays/, and
+# each package in packages.txt is built one-by-one (so a blocked package can't
+# fail the whole solve). The ROS packages are deliberately NOT listed as
+# [dependencies] here — they are built via `pixi build --path`.
+[workspace]
+name = "bar-buildfarm"
+channels = [
+  "https://prefix.dev/pixi-build-backends",
+  "https://prefix.dev/robostack-jazzy",
+  "https://prefix.dev/conda-forge",
+]
+platforms = ["linux-64", "linux-aarch64"]
+preview = ["pixi-build"]
+
+[dependencies]
+vcstool = "*"
+rattler-build = "*"
+
+[tasks]
+# 1. Clone the sources listed in bar.repos into ./src.
+import = "vcs import --input bar.repos src"
+# 2. Drop the conda build manifests into the third-party source trees.
+overlay = "bash scripts/apply-overlays.sh"
+# 3. Build every buildable package (packages.txt) into ./output as .conda.
+#    Pass a platform: `pixi run build-all linux-aarch64` (default linux-64).
+build-all = "bash scripts/build-all.sh"
+# 4. Upload ./output to the prefix.dev channel (override CHANNEL / PREFIX_API_KEY).
+publish = "rattler-build upload prefix -c ${CHANNEL:-bar-robotics} output/**/*.conda"
+# Convenience: full local dry run into a file:// channel (no account needed).
+publish-local = "rattler-build upload --help >/dev/null && echo 'use: pixi run build-all; see README for file:// channel demo'"

@@ -1,0 +1,27 @@
+# Sources the buildfarm compiles into ros-jazzy-* conda packages.
+#
+# bar_ros2 is first-party; the rest are the third-party source deps that are
+# NOT in RoboStack and must be rebuilt so end users compile nothing. Third-party
+# SHAs are kept in sync with bar_ros2/bar_msgs's own bar.repos (the verified-green
+# pins). CI may instead resolve the latest semver tag of bar_ros2 (qiayuanl style).
+repositories:
+  bar_ros2:
+    type: git
+    url: https://github.com/T-K-233/bar_ros2.git
+    version: main
+  ethercat_driver_ros2:
+    type: git
+    url: https://github.com/ICube-Robotics/ethercat_driver_ros2.git
+    version: 066b81a2f54a230af3f54160be41aa53657073e0  # branch: jazzy
+  mujoco_ament:
+    type: git
+    url: https://github.com/qiayuanl/mujoco_ament.git
+    version: 60ef6c463b9c1cf004537e18fc881e7ed4d159ce  # branch: master
+  mujoco_sim_ros2:
+    type: git
+    url: https://github.com/qiayuanl/mujoco_sim_ros2.git
+    version: 088ae0f33e0a7e53b658627f03a66d9337aef650  # branch: devel
+  mujoco_ros2_control:
+    type: git
+    url: https://github.com/qiayuanl/mujoco_ros2_control.git
+    version: 02ac494e368f8a4456e32ba14968c18e2c1e4188  # branch: jazzy

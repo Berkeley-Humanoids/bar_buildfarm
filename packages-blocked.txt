@@ -1,0 +1,17 @@
+# NOT yet buildable — do not add to packages.txt until the blocker is cleared.
+#
+# --- ethercat_driver_ros2 (real-hardware path) ---
+# BLOCKED: links IgH EtherLab libethercat (-lethercat, ecrt.h), which has NO
+# conda-forge package. Must first produce a conda package for the EtherLab
+# userspace lib (or vendor a prebuilt). See README "Long poles".
+src/ethercat_driver_ros2/ethercat_interface
+src/ethercat_driver_ros2/ethercat_msgs
+src/ethercat_driver_ros2/ethercat_manager
+src/ethercat_driver_ros2/ethercat_driver
+src/ethercat_driver_ros2/ethercat_generic_plugins/ethercat_generic_slave
+src/ethercat_driver_ros2/ethercat_generic_plugins/ethercat_generic_cia402_drive
+src/ethercat_driver_ros2/ethercat_driver_ros2
+#
+# --- bar_bringup_prime ---
+# BLOCKED transitively: depends on ethercat_* above.
+src/bar_ros2/bar_bringup_prime

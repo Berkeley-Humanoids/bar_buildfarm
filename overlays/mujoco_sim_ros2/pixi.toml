@@ -1,0 +1,8 @@
+# OVERLAY (copied into src/mujoco_sim_ros2/ by apply-overlays.sh).
+[package.build.backend]
+name = "pixi-build-ros"
+version = "*"
+channels = ["https://prefix.dev/conda-forge"]
+
+[package.build.config]
+distro = "jazzy"
