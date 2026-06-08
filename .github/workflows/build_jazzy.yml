@@ -63,6 +63,11 @@ jobs:
       - uses: prefix-dev/setup-pixi@v0
         with:
           manifest-path: pixi.toml
+          # Pin pixi: setup-pixi defaults to "latest", and a newer pixi gave the
+          # arm64 runner a different `pixi build --path` behavior (deprecation +
+          # "manifest is a directory" error) while linux-64 on 0.70.1 built green.
+          # A buildfarm must pin its toolchain so both arches are identical.
+          pixi-version: v0.70.1
 
       # bar_ros2 is PRIVATE and under a different account (T-K-233) than this
       # buildfarm (Berkeley-Humanoids), so GITHUB_TOKEN can't read it. Fetch it with
