@@ -64,6 +64,20 @@ jobs:
         with:
           manifest-path: pixi.toml
 
+      # TEMP DIAGNOSTIC — prints only the secret's length + the HTTP status it gets
+      # (never the token). Remove once auth is confirmed.
+      - name: Diagnose GH_PAT (temp)
+        env:
+          GH_PAT: ${{ secrets.GH_PAT }}
+        run: |
+          echo "GH_PAT length: ${#GH_PAT} (expect 93 for a fine-grained PAT)"
+          echo "first3=${GH_PAT:0:3} (expect 'git')"
+          code=$(curl -s -o /dev/null -w '%{http_code}' \
+            -H "Authorization: Bearer $GH_PAT" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            https://api.github.com/repos/T-K-233/bar_ros2)
+          echo "GET /repos/T-K-233/bar_ros2 -> HTTP $code (expect 200)"
+
       # bar_ros2 is a PRIVATE repo under a different account (T-K-233) than this
       # buildfarm (Berkeley-Humanoids), so GITHUB_TOKEN can't read it. Authenticate
       # github.com clones with a PAT (read access to T-K-233/bar_ros2). Inject the
