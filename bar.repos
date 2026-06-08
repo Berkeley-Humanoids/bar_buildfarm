@@ -1,14 +1,11 @@
-# Sources the buildfarm compiles into ros-jazzy-* conda packages.
+# Third-party source deps the buildfarm compiles into ros-jazzy-* conda packages.
+# These are the deps NOT in RoboStack, that must be rebuilt so end users compile
+# nothing. All are PUBLIC, so `vcs import` clones them anonymously (no token).
 #
-# bar_ros2 is first-party; the rest are the third-party source deps that are
-# NOT in RoboStack and must be rebuilt so end users compile nothing. Third-party
-# SHAs are kept in sync with bar_ros2/bar_msgs's own bar.repos (the verified-green
-# pins). CI may instead resolve the latest semver tag of bar_ros2 (qiayuanl style).
+# bar_ros2 (first-party, PRIVATE) is intentionally NOT here — the workflow fetches
+# it with actions/checkout + GH_PAT into src/bar_ros2. SHAs below are kept in sync
+# with bar_ros2/bar_msgs's own bar.repos (the verified-green pins).
 repositories:
-  bar_ros2:
-    type: git
-    url: https://github.com/T-K-233/bar_ros2.git
-    version: main
   ethercat_driver_ros2:
     type: git
     url: https://github.com/ICube-Robotics/ethercat_driver_ros2.git
