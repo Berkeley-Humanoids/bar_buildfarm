@@ -61,15 +61,20 @@ the channel; nightlies build + upload artifacts for verification.
 
 ## ⚠️ Manual setup (needs your credentials)
 
-1. **prefix.dev channel** — create the `bar-robotics` channel at prefix.dev. For
-   auth, either add a repo secret `PREFIX_API_KEY`, or configure **trusted
-   publishing** (OIDC) for this repo (the workflow already requests
-   `id-token: write`).
-2. **GitHub remote** — create the `bar_buildfarm` repo, push, and enable Actions
-   read/write. (Optional: a `GH_PAT` secret for the docs-refresh trigger.)
+1. **prefix.dev channel** — create the `bar-robotics` channel at prefix.dev and
+   configure **trusted publishing** (OIDC): org `Berkeley-Humanoids`, repo
+   `bar_buildfarm`, workflow filename `build_jazzy.yml`. (The workflow already
+   requests `id-token: write`; `rattler-build >=0.31.1` uses the OIDC token, no
+   API key. Alternatively add a `PREFIX_API_KEY` secret.)
+2. **`GH_PAT` secret (required — `bar_ros2` is private).** The buildfarm
+   (`Berkeley-Humanoids`) clones the private `T-K-233/bar_ros2` cross-account, so
+   `GITHUB_TOKEN` can't read it. Create a **fine-grained PAT** scoped to
+   `T-K-233/bar_ros2` with **Contents: Read-only**, and add it as the repo secret
+   `GH_PAT` in `Berkeley-Humanoids/bar_buildfarm` (Settings → Secrets and
+   variables → Actions). The `Configure git auth` step injects it for the clone.
 3. **Commit the manifests in `bar_ros2`** — the 12 per-package `pixi.toml` files
-   were added under `bar_ros2/`; CI clones `bar_ros2` fresh, so they must be
-   committed/pushed there for the buildfarm to find them.
+   live under `bar_ros2/`; CI clones `bar_ros2` fresh, so they must be on the
+   remote `bar.repos` points to (`T-K-233/bar_ros2` @ `main`).
 
 ## Long poles (tracked in `packages-blocked.txt`)
 
