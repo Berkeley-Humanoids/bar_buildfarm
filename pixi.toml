@@ -13,7 +13,14 @@
 [workspace]
 name = "bar-buildfarm"
 channels = [
-  "https://prefix.dev/pixi-build-backends",
+  # prefix.dev/pixi-build-backends is deliberately NOT listed. When pkg A
+  # <depend>s pkg B in-workspace, pixi resolves B's backend from a DEFAULT spec
+  # ("pixi-build-ros *") against these channels, IGNORING the version pinned in
+  # B's pixi.toml — and that channel's nightlies outrank the conda-forge
+  # releases (0.5.0.YYYYMMDD… > 0.5.0). The 2026-06-10 nightly broke the
+  # build-API handshake with our pinned pixi. Without the channel here, both
+  # the pinned per-package backends and the default-spec source-dep backends
+  # resolve to the same conda-forge release.
   "https://prefix.dev/robostack-jazzy",
   "https://prefix.dev/conda-forge",
 ]

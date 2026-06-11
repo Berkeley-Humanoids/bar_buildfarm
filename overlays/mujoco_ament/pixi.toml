@@ -6,7 +6,10 @@
 # package and have this depend on it instead.
 [package.build.backend]
 name = "pixi-build-ros"
-version = "*"
+# Pinned: the backend must stay build-API compatible with the pixi version
+# pinned in bar_buildfarm CI ("*" pulled a 2026-06-10 nightly that broke the
+# handshake). Bump deliberately, together with that pixi pin.
+version = "==0.5.0"
 channels = ["https://prefix.dev/conda-forge"]
 
 [package.build.config]
